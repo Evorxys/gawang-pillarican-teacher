@@ -1,3 +1,14 @@
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password');
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        this.textContent = '👁️‍🗨️';
+    } else {
+        passwordInput.type = 'password';
+        this.textContent = '👁️';
+    }
+});
+
 function generateRoomId() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';

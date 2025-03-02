@@ -129,3 +129,30 @@ h2 {
     outline: none;
     border-color: #1a73e8;
 }
+
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.2rem;
+}
+
+.toggle-password:hover {
+    opacity: 0.7;
+}
+
+/* Update existing password input to accommodate button */
+.password-container input[type="password"],
+.password-container input[type="text"] {
+    padding-right: 40px;
+}
