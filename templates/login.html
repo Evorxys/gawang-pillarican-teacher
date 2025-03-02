@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Login</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <form id="loginForm">
+            <h2>Enter Room</h2>
+            <div class="input-group">
+                <input type="text" id="name" required placeholder="Your Name">
+            </div>
+            <div class="input-group room-id-group">
+                <input type="text" id="roomId" required placeholder="Room ID" disabled>
+                <button type="button" id="generateBtn" class="generate-btn">Generate</button>
+            </div>
+            <div class="input-group">
+                <input type="password" 
+                       id="password" 
+                       required 
+                       placeholder="Password" 
+                       autocomplete="new-password">
+                <span class="password-notice">Create your own unique password for this room</span>
+            </div>
+            <div class="input-group">
+                <select id="serverSelect" required class="server-select">
+                    <option value="" disabled selected>Select Server</option>
+                    <option value="1">Server 1</option>
+                    <option value="2">Server 2</option>
+                    <option value="3">Server 3</option>
+                </select>
+            </div>
+            <button type="submit" class="enter-btn">ENTER ROOM</button>
+        </form>
+    </div>
+    <script src="{{ url_for('static', filename='login.js') }}"></script>
+</body>
+</html>

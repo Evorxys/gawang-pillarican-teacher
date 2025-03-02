@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='teacher.css') }}">
+</head>
+<body>
+    <div class="parent">
+        <!-- Left Column -->
+        <div class="left-column">
+            <div class="chatbox-container">
+                <div class="chat-sections">
+                    <div class="teacher-chat">
+                        <h3>Teacher Messages</h3>
+                        <div class="chatbox" id="teacherChatbox">
+                            <!-- Teacher messages will appear here -->
+                        </div>
+                    </div>
+                    <div class="student-chat">
+                        <h3>Student Messages</h3>
+                        <div class="chatbox" id="studentChatbox">
+                            <!-- Student messages will appear here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="message-input-container">
+                    <input type="text" id="messageInput" placeholder="Type your message...">
+                    <button id="sendButton">Send</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+            <div class="control-panel">
+                <div class="control-buttons">
+                    <button id="saveBtn" class="control-btn">Save</button>
+                    <button id="printBtn" class="control-btn">Print</button>
+                    <button id="exitBtn" class="control-btn">Exit</button>
+                </div>
+            </div>
+
+            <div class="room-details-panel">
+                <div class="details-section">
+                    <h3>User Details</h3>
+                    <div class="detail-item">
+                        <label>Name:</label>
+                        <span id="teacherName">---</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>User ID:</label>
+                        <span id="userId">---</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Position:</label>
+                        <span id="userPosition">---</span>
+                    </div>
+                </div>
+                
+                <div class="details-section">
+                    <h3>Room Details</h3>
+                    <div class="detail-item">
+                        <label>Room ID:</label>
+                        <span id="roomId">---</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Connected Users:</label>
+                        <span id="userCount">0</span>
+                    </div>
+                    <div class="user-list" id="userList">
+                        <!-- User list will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <button id="speakBtn" class="speak-btn">
+                <i class="mic-icon"></i>
+                Speak
+            </button>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='teacher.js') }}"></script>
+</body>
+</html>
