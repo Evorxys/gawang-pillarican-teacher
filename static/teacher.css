@@ -8,7 +8,7 @@ body {
 
 .parent {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 65% 35%; /* Changed from repeat(2, 1fr) to 65% 35% */
     gap: 20px;
     height: calc(100vh - 40px);
     box-sizing: border-box;
@@ -230,6 +230,7 @@ button:hover {
 .detail-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
     padding: 5px 0;
 }
@@ -239,7 +240,60 @@ button:hover {
     font-weight: 500;
 }
 
-detail-item span {
+.detail-item span {
     color: #333;
     font-weight: 600;
+}
+
+.detail-item .password-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-item .password-hidden {
+    font-family: monospace;
+    letter-spacing: 2px;
+}
+
+.detail-item .toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.detail-item .toggle-btn:hover {
+    opacity: 1;
+}
+
+.password-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.password-hidden {
+    font-family: monospace;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.toggle-btn:hover {
+    opacity: 1;
 }

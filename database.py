@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2 import sql
 import uuid
 from dotenv import load_dotenv
+import sqlite3
 
 load_dotenv()
 
@@ -112,6 +113,42 @@ def delete_room_users(server_num, room_id, password):
         conn.rollback()
         print(f"Error deleting room users: {str(e)}")
         raise e
+    finally:
+        cur.close()
+        conn.close()
+
+def get_student_messages(server, room_id, password):
+    table_name = f'server{server}'
+    conn = get_db_connection()  # Use PostgreSQL connection
+    cur = conn.cursor()
+    
+    try:
+        print(f"Fetching student messages from {table_name}")  # Debug log
+        print(f"Parameters: room_id={room_id}, password={password}")  # Debug log
+        
+        # Use proper PostgreSQL query with table name interpolation
+        cur.execute(sql.SQL("""
+            SELECT name, message 
+            FROM {} 
+            WHERE rid = %s AND pass = %s AND position = 'student'
+            ORDER BY uid ASC
+        """).format(sql.Identifier(table_name)),
+        (room_id, password))
+        
+        messages = cur.fetchall()
+        print(f"Found {len(messages)} student messages")  # Debug log
+        
+        # Convert to list of dictionaries
+        return [{
+            'name': msg[0],    # Now we can use the actual name from the table
+            'message': msg[1],
+            'timestamp': ''    # Add timestamp if needed later
+        } for msg in messages]
+        
+    except Exception as e:
+        print(f"Database error in get_student_messages: {str(e)}")
+        return []
+        
     finally:
         cur.close()
         conn.close()

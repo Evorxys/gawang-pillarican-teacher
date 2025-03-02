@@ -25,6 +25,11 @@ document.getElementById('generateBtn').addEventListener('click', function() {
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
+    // Disable the button and change text
+    const submitButton = this.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = 'CONNECTING...';
+    
     const formData = {
         name: document.getElementById('name').value,
         roomId: document.getElementById('roomId').value,
@@ -49,10 +54,16 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             localStorage.setItem('userData', JSON.stringify(data.user_data));
             window.location.href = data.redirect;
         } else {
+            // Re-enable button on error
+            submitButton.disabled = false;
+            submitButton.textContent = 'ENTER ROOM';
             alert('Error: ' + (data.message || 'Unknown error'));
         }
     })
     .catch(error => {
+        // Re-enable button on error
+        submitButton.disabled = false;
+        submitButton.textContent = 'ENTER ROOM';
         console.error('Error:', error);
         alert('Failed to join room: ' + error.message);
     });

@@ -2,18 +2,61 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load and display user data
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (userData) {
+        // Update user details
         document.getElementById('teacherName').textContent = userData.name;
-        document.getElementById('roomId').textContent = userData.room_id;
         document.getElementById('userId').textContent = userData.user_id;
         document.getElementById('userPosition').textContent = userData.position;
         document.getElementById('userCount').textContent = userData.connected_users.length;
         
+        // Update room details
+        document.getElementById('roomId').textContent = userData.room_id;
+        document.getElementById('serverName').textContent = userData.server;
+        
+        // Initialize password toggle functionality
+        const togglePasswordBtn = document.getElementById('togglePasswordDisplay');
+        const passwordValue = document.getElementById('passwordValue');
+        let isPasswordVisible = false;
+
+        togglePasswordBtn.addEventListener('click', function() {
+            isPasswordVisible = !isPasswordVisible;
+            if (isPasswordVisible) {
+                passwordValue.textContent = userData.password;
+                passwordValue.classList.remove('password-hidden');
+                this.textContent = '👁️‍🗨️';
+            } else {
+                passwordValue.textContent = '••••••';
+                passwordValue.classList.add('password-hidden');
+                this.textContent = '👁️';
+            }
+        });
+
         // Update user list
         const userList = document.getElementById('userList');
         userList.innerHTML = userData.connected_users
             .map(user => `<div class="user-item">${user}</div>`)
             .join('');
     }
+
+    // Add this after userData is loaded
+    const togglePasswordBtn = document.getElementById('togglePasswordDisplay');
+    const passwordValue = document.getElementById('passwordValue');
+    let isPasswordVisible = false;
+
+    togglePasswordBtn.addEventListener('click', function() {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (!userData || !userData.password) return;
+
+        isPasswordVisible = !isPasswordVisible;
+        if (isPasswordVisible) {
+            passwordValue.textContent = userData.password;
+            passwordValue.classList.remove('password-hidden');
+            this.textContent = '👁️‍🗨️';
+        } else {
+            passwordValue.textContent = '••••••';
+            passwordValue.classList.add('password-hidden');
+            this.textContent = '👁️';
+        }
+    });
 
     // Message sending functionality
     const messageInput = document.getElementById('messageInput');
@@ -49,6 +92,60 @@ document.addEventListener('DOMContentLoaded', function() {
         studentChatbox.appendChild(messageElement);
         studentChatbox.scrollTop = studentChatbox.scrollHeight;
     }
+
+    // Add this after existing message handling code
+    function loadStudentMessages() {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (!userData) return;
+
+        fetch('/get-student-messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                roomId: userData.room_id,
+                server: userData.server,
+                password: userData.password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Student messages response:', data); // Debug log
+            if (data.success && Array.isArray(data.messages)) {
+                const studentChatbox = document.getElementById('studentChatbox');
+                if (!studentChatbox) {
+                    console.error('Student chatbox element not found');
+                    return;
+                }
+
+                // Clear existing messages
+                studentChatbox.innerHTML = '';
+                
+                // Add each message
+                data.messages.forEach(msg => {
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message student-message';
+                    messageElement.textContent = `${msg.name}: ${msg.message}`;
+                    studentChatbox.appendChild(messageElement);
+                });
+                
+                // Scroll to bottom
+                studentChatbox.scrollTop = studentChatbox.scrollHeight;
+            } else {
+                console.error('Invalid message data received:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading student messages:', error);
+        });
+    }
+
+    // Load messages initially
+    loadStudentMessages();
+
+    // Refresh messages every 5 seconds
+    setInterval(loadStudentMessages, 5000);
 
     // Control buttons functionality
     document.getElementById('exitBtn').addEventListener('click', async () => {

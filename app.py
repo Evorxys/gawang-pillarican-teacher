@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, session
-from database import create_server_table, add_user_to_server, delete_room_users
+from database import create_server_table, add_user_to_server, delete_room_users, get_student_messages
 
 app = Flask(__name__, 
     static_url_path='',
@@ -107,6 +107,38 @@ def exit_room():
         return jsonify({
             'success': False,
             'message': f'Error during room exit: {str(e)}'
+        })
+
+@app.route('/get-student-messages', methods=['POST'])
+def get_student_messages_route():
+    try:
+        data = request.get_json()
+        room_id = data.get('roomId')
+        server = data.get('server')
+        password = data.get('password')
+        
+        if not all([room_id, server, password]):
+            return jsonify({
+                'success': False,
+                'message': 'Missing required data'
+            })
+            
+        # Extract server number from "Server X" format if needed
+        server_num = server.split()[-1] if isinstance(server, str) else server
+        
+        # Get messages from database
+        messages = get_student_messages(server_num, room_id, password)
+        
+        return jsonify({
+            'success': True,
+            'messages': messages
+        })
+            
+    except Exception as e:
+        print(f"Error fetching student messages: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'Error fetching messages: {str(e)}'
         })
 
 @app.route('/')
