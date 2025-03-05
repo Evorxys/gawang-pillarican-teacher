@@ -131,12 +131,15 @@ def get_student_messages(server, room_id, password):
             SELECT name, message 
             FROM {} 
             WHERE rid = %s AND pass = %s AND position = 'student'
-            ORDER BY uid ASC
+            ORDER BY ctid DESC  /* Changed to DESC order and using ctid for PostgreSQL row identifier */
         """).format(sql.Identifier(table_name)),
         (room_id, password))
         
         messages = cur.fetchall()
         print(f"Found {len(messages)} student messages")  # Debug log
+        
+        # Reverse the messages to maintain chronological order
+        messages.reverse()
         
         # Convert to list of dictionaries
         return [{
@@ -149,6 +152,42 @@ def get_student_messages(server, room_id, password):
         print(f"Database error in get_student_messages: {str(e)}")
         return []
         
+    finally:
+        cur.close()
+        conn.close()
+
+def add_message_to_server(server_num, room_id, password, message, position, uid, name):
+    table_name = f'server{server_num}'
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        print(f"Adding message to {table_name}...")
+        
+        cur.execute(sql.SQL("""
+            CREATE TABLE IF NOT EXISTS messages (
+                rid VARCHAR(10) NOT NULL,
+                pass VARCHAR(100) NOT NULL,
+                message TEXT NOT NULL,
+                position VARCHAR(50) NOT NULL,
+                uid VARCHAR(36) NOT NULL,
+                name VARCHAR(100) NOT NULL
+            )
+        """))
+        
+        cur.execute(sql.SQL("""
+            INSERT INTO {} (rid, pass, message, position, uid, name)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """).format(sql.Identifier(table_name)), 
+        (room_id, password, message, position, uid, name))
+        
+        conn.commit()
+        print(f"Message added successfully to {table_name}")
+        
+    except Exception as e:
+        conn.rollback()
+        print(f"Error adding message: {str(e)}")
+        raise e
     finally:
         cur.close()
         conn.close()

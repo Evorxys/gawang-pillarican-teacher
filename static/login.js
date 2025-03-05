@@ -12,7 +12,7 @@ document.getElementById('togglePassword').addEventListener('click', function() {
 function generateRoomId() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 10; i++) { // Changed from 6 to 10 characters
         result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;

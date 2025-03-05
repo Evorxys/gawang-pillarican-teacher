@@ -5,17 +5,19 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f0f2f5;
+    background-color: #000074; /* Navy blue */
     font-family: Arial, sans-serif;
 }
 
 .login-container {
-    background-color: white;
+    background-color: #0000b4; /* Darker navy blue */
     padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3),
+                0 0 0 3px #FFD700; /* Added solid gold border */
     width: 100%;
     max-width: 400px;
+    border: 2px solid #FFD700; /* Thicker, more visible gold border */
 }
 
 .input-group {
@@ -25,10 +27,16 @@ body {
 input {
     width: 100%;
     padding: 0.8rem;
-    border: 1px solid #ddd;
+    border: 1px solid #FFD700; /* Gold yellow border */
     border-radius: 4px;
     font-size: 1rem;
     box-sizing: border-box;
+    background-color: #000073; /* Slightly lighter navy blue */
+    color: #ffffff; /* White text */
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.6); /* Semi-transparent white */
 }
 
 input:disabled {
@@ -41,26 +49,26 @@ input:disabled {
 input[type="password"] {
     width: 100%;
     padding: 0.8rem;
-    border: 1px solid #ddd;
+    border: 1px solid #FFD700; /* Gold yellow border */
     border-radius: 4px;
     font-size: 1rem;
     box-sizing: border-box;
-    background-color: white;
-    color: #333;
+    background-color: #000073; /* Slightly lighter navy blue */
+    color: #ffffff; /* White text */
 }
 
-/* Only apply disabled styles to room ID input */
-input#roomId:disabled {
+/* Remove or comment out this section */
+/* input#roomId:disabled {
     background-color: #f8f9fa;
     color: #495057;
     cursor: not-allowed;
-}
+} */
 
 .enter-btn {
     width: 100%;
     padding: 0.8rem;
-    background-color: #1a73e8;
-    color: white;
+    background-color: #FFD700; /* Gold yellow */
+    color: #000080; /* Navy blue text */
     border: none;
     border-radius: 4px;
     font-size: 1rem;
@@ -69,7 +77,7 @@ input#roomId:disabled {
 }
 
 .enter-btn:hover {
-    background-color: #1557b0;
+    background-color: #FFED4A; /* Lighter yellow on hover */
 }
 
 .enter-btn:disabled {
@@ -80,7 +88,7 @@ input#roomId:disabled {
 
 h2 {
     text-align: center;
-    color: #202124;
+    color: #FFD700; /* Gold yellow */
     margin-bottom: 1.5rem;
 }
 
@@ -95,8 +103,8 @@ h2 {
 
 .generate-btn {
     padding: 0.8rem 1rem;
-    background-color: #34a853;
-    color: white;
+    background-color: #FFD700; /* Gold yellow */
+    color: #000080; /* Navy blue text */
     border: none;
     border-radius: 4px;
     font-size: 0.9rem;
@@ -105,13 +113,13 @@ h2 {
 }
 
 .generate-btn:hover {
-    background-color: #2d8e47;
+    background-color: #FFED4A; /* Lighter yellow on hover */
 }
 
 .password-notice {
     display: block;
     font-size: 0.8rem;
-    color: #666;
+    color: rgba(255, 215, 0, 0.9); /* More visible yellow */
     margin-top: 0.3rem;
     padding-left: 0.2rem;
 }
@@ -119,13 +127,14 @@ h2 {
 .server-select {
     width: 100%;
     padding: 0.8rem;
-    border: 1px solid #ddd;
+    border: 1px solid #FFD700; /* Gold yellow border */
     border-radius: 4px;
     font-size: 1rem;
-    background-color: white;
+    background-color: #000073; /* Slightly lighter navy blue */
+    color: #ffffff; /* White text */
     cursor: pointer;
     appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFD700' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 1rem center;
     background-size: 1em;
@@ -134,6 +143,11 @@ h2 {
 .server-select:focus {
     outline: none;
     border-color: #1a73e8;
+}
+
+.server-select option {
+    background-color: #000073; /* Matching navy blue */
+    color: #ffffff;
 }
 
 .password-container {
@@ -151,6 +165,7 @@ h2 {
     cursor: pointer;
     padding: 0;
     font-size: 1.2rem;
+    color: #FFD700; /* Gold yellow */
 }
 
 .toggle-password:hover {

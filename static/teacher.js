@@ -71,16 +71,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function sendMessage() {
         const message = messageInput.value.trim();
-        if (message) {
-            // Add message to teacher's chatbox
-            const messageElement = document.createElement('div');
-            messageElement.className = 'message teacher-message';
-            messageElement.textContent = `${userData.name}: ${message}`;
-            teacherChatbox.appendChild(messageElement);
-            
-            // Clear input and scroll
-            messageInput.value = '';
-            teacherChatbox.scrollTop = teacherChatbox.scrollHeight;
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        
+        if (message && userData) {
+            fetch('/send-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    roomId: userData.room_id,
+                    server: userData.server,
+                    password: userData.password,
+                    message: message,
+                    name: userData.name,
+                    position: userData.position,
+                    userId: userData.user_id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add message to teacher's chatbox
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message teacher-message';
+                    messageElement.textContent = `${userData.name}: ${message}`;
+                    teacherChatbox.appendChild(messageElement); // Add at the bottom
+                    
+                    // Clear input and scroll to bottom
+                    messageInput.value = '';
+                    teacherChatbox.scrollTop = teacherChatbox.scrollHeight;
+                }
+            })
+            .catch(error => {
+                console.error('Error sending message:', error);
+            });
         }
     }
 
@@ -122,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Clear existing messages
                 studentChatbox.innerHTML = '';
                 
-                // Add each message
+                // Add messages in chronological order
                 data.messages.forEach(msg => {
                     const messageElement = document.createElement('div');
                     messageElement.className = 'message student-message';
@@ -130,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     studentChatbox.appendChild(messageElement);
                 });
                 
-                // Scroll to bottom
+                // Always scroll to bottom to show latest messages
                 studentChatbox.scrollTop = studentChatbox.scrollHeight;
             } else {
                 console.error('Invalid message data received:', data);

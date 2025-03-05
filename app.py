@@ -1,5 +1,8 @@
 from flask import Flask, render_template, request, jsonify, session
-from database import create_server_table, add_user_to_server, delete_room_users, get_student_messages
+from database import (create_server_table, add_user_to_server, 
+                     delete_room_users, get_student_messages,
+                     add_message_to_server)
+import uuid  # Add this import at the top
 
 app = Flask(__name__, 
     static_url_path='',
@@ -22,29 +25,29 @@ def join_room():
         server = data.get('server')
         position = 'teacher'  # Default position
         
+        # Generate a user ID for the session
+        user_id = str(uuid.uuid4())
+        
         # Detailed validation with logging
         print(f"Received data: {data}") # Debug log
         
-        if not name:
-            return jsonify({'success': False, 'message': 'Name is required'})
-        if not room_id:
-            return jsonify({'success': False, 'message': 'Room ID is required'})
-        if not password:
-            return jsonify({'success': False, 'message': 'Password is required'})
-        if not server:
-            return jsonify({'success': False, 'message': 'Server selection is required'})
-        
-        # Create table if not exists
-        create_server_table(server)
-        
-        # Add user to database with position
-        user_id = add_user_to_server(server, room_id, password, name, position)
-        
-        if not user_id:
+        if not all([name, room_id, password, server]):
             return jsonify({
                 'success': False,
-                'message': 'Failed to generate user ID'
+                'message': 'All fields are required'
             })
+        
+        # Add entry message with uid and name
+        entry_message = f"{name} entered the room"
+        add_message_to_server(
+            server, 
+            room_id, 
+            password, 
+            entry_message, 
+            position,
+            user_id,  # Add user_id
+            name      # Add name
+        )
         
         # Store in session
         session['user_data'] = {
@@ -139,6 +142,50 @@ def get_student_messages_route():
         return jsonify({
             'success': False,
             'message': f'Error fetching messages: {str(e)}'
+        })
+
+@app.route('/send-message', methods=['POST'])
+def send_message():
+    try:
+        data = request.get_json()
+        room_id = data.get('roomId')
+        server = data.get('server')
+        password = data.get('password')
+        message = data.get('message')
+        name = data.get('name')
+        position = data.get('position')
+        user_id = data.get('userId')
+        
+        if not all([room_id, server, password, message, name, position, user_id]):
+            return jsonify({
+                'success': False,
+                'message': 'Missing required data'
+            })
+            
+        # Extract server number from "Server X" format
+        server_num = server.split()[-1]
+        
+        # Add message to database
+        add_message_to_server(
+            server_num,
+            room_id,
+            password,
+            message,
+            position,
+            user_id,
+            name
+        )
+        
+        return jsonify({
+            'success': True,
+            'message': 'Message sent successfully'
+        })
+            
+    except Exception as e:
+        print(f"Error sending message: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'Error sending message: {str(e)}'
         })
 
 @app.route('/')
