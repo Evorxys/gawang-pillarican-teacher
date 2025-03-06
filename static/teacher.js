@@ -258,24 +258,365 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    document.getElementById('saveBtn').addEventListener('click', () => {
-        alert('Saving conversation...');
-        // Add save functionality
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (!userData) return;
+    
+        // Convert logo to base64
+        try {
+            const logoResponse = await fetch('/uploads/olpcc.png');
+            const logoBlob = await logoResponse.blob();
+            const logoBase64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(logoBlob);
+            });
+    
+            const teacherChatbox = document.getElementById('teacherChatbox');
+            const messages = teacherChatbox.innerHTML;
+            const modifiedMessages = messages.replace(
+                /<div class="message teacher-message">(.*?):(.*?)<\/div>/g, 
+                '$1: $2\n'
+            );
+    
+            // Create document content with embedded base64 logo
+            const docContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'>
+                <head>
+                <meta charset="utf-8">
+                <title>Room Chat Log</title>
+                <style>
+                    body { font-family: 'Times New Roman', serif; }
+                    .header { text-align: center; margin-bottom: 20px; }
+                    .school-name { font-size: 18pt; font-weight: bold; margin-bottom: 10px; }
+                    .details { margin: 20px 0; padding-left: 20px; }
+                    .messages { margin-top: 20px; }
+                    .message { margin: 5px 0; }
+                    table { width: 100%; border-collapse: collapse; }
+                    td, th { border: 1px solid #000; padding: 8px; }
+                    @page { size: A4; margin: 2cm; }
+                    .logo { width: 100px; height: auto; }
+                    /* Add watermark styles */
+                    .watermark-header {
+                        position: fixed;
+                        top: 0;
+                        width: 100%;
+                        text-align: center;
+                        font-size: 14pt;
+                        color: rgba(128, 128, 128, 0.3);
+                        text-transform: uppercase;
+                        letter-spacing: 2px;
+                        pointer-events: none;
+                        padding: 10px 0;
+                    }
+                    
+                    .watermark-footer {
+                        position: fixed;
+                        bottom: 0;
+                        width: 100%;
+                        text-align: center;
+                        font-size: 14pt;
+                        color: rgba(128, 128, 128, 0.3);
+                        text-transform: uppercase;
+                        letter-spacing: 2px;
+                        pointer-events: none;
+                        padding: 10px 0;
+                    }
+                </style>
+                </head>
+                <body>
+                    <div class="watermark-header">GAWANG-PILLARICAN-STUDENT</div>
+                    <div class="header">
+                        <img src="${logoBase64}" alt="Logo" class="logo" style="width:100px; height:auto;"><br>
+                        <div class="school-name">OUR LADY OF THE PILLAR COLLEGE - CAUAYAN</div>
+                        <div>Room Chat Log</div>
+                    </div>
+        
+                    <div class="details">
+                        <table>
+                            <tr>
+                                <th colspan="2">Room Information</th>
+                            </tr>
+                            <tr>
+                                <td><strong>Room ID:</strong></td>
+                                <td>${userData.room_id}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Server:</strong></td>
+                                <td>${userData.server}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Teacher:</strong></td>
+                                <td>${userData.name}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date:</strong></td>
+                                <td>${new Date().toLocaleString()}</td>
+                            </tr>
+                        </table>
+                    </div>
+        
+                    <div class="messages">
+                        <h3>Messages:</h3>
+                        ${modifiedMessages.replace(/<[^>]+>/g, '').split('\n').filter(msg => msg.trim())
+                            .map(msg => `<div class="message">• ${msg.trim()}</div>`).join('')}
+                    </div>
+                    <div class="watermark-footer">GAWANG-PILLARICAN-STUDENT</div>
+                </body>
+                </html>
+            `;
+    
+            // Create mimeType for Word document
+            const blob = new Blob([docContent], { 
+                type: 'application/msword;charset=utf-8'
+            });
+            const url = window.URL.createObjectURL(blob);
+            const downloadLink = document.createElement('a');
+            
+            const date = new Date();
+            const filename = `room-${userData.room_id}-${date.toISOString().split('T')[0]}.doc`;
+            
+            downloadLink.href = url;
+            downloadLink.download = filename;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            window.URL.revokeObjectURL(url);
+    
+        } catch (error) {
+            console.error('Error creating document:', error);
+            alert('Error creating document. Please try again.');
+        }
     });
 
     document.getElementById('printBtn').addEventListener('click', () => {
-        window.print();
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (!userData) return;
+
+        const printWindow = window.open('', '_blank');
+        const teacherChatbox = document.getElementById('teacherChatbox');
+        
+        const messages = teacherChatbox.innerHTML;
+        const modifiedMessages = messages.replace(
+            /<div class="message teacher-message">(.*?):(.*?)<\/div>/g, 
+            '<div class="message">• $2</div>'
+        );
+        
+        const printContent = `
+            <html>
+            <head>
+                <title>Teacher Messages - Room ${userData.room_id}</title>
+                <style>
+                    @page {
+                        margin: 2cm;
+                    }
+                    body { 
+                        font-family: Arial, sans-serif;
+                        padding: 20px;
+                        max-width: 800px;
+                        margin: 0 auto;
+                        line-height: 1.5;
+                    }
+                    .header { 
+                        margin-bottom: 30px;
+                        display: flex;
+                        align-items: center;
+                        gap: 20px;
+                        padding-bottom: 20px;
+                        border-bottom: 2px solid #000080;
+                    }
+                    .logo {
+                        width: 120px;
+                        height: auto;
+                    }
+                    .header-text {
+                        flex: 1;
+                    }
+                    .school-name {
+                        font-size: 24px;
+                        font-weight: bold;
+                        margin-bottom: 15px;
+                        color: #000080;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                    }
+                    .header-info {
+                        margin: 5px 0;
+                        font-size: 14px;
+                        color: #333;
+                    }
+                    .messages {
+                        padding-left: 20px;
+                    }
+                    .message { 
+                        margin: 4px 0;
+                        padding: 4px 8px;
+                        text-align: left;
+                        font-size: 14px;
+                        page-break-inside: avoid;
+                    }
+                    hr {
+                        border: none;
+                        border-top: 1px solid #ccc;
+                        margin: 20px 0;
+                    }
+                    @media print {
+                        body {
+                            print-color-adjust: exact;
+                            -webkit-print-color-adjust: exact;
+                        }
+                        .message {
+                            break-inside: avoid;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <img src="/uploads/olpcc.png" alt="Logo" class="logo">
+                    <div class="header-text">
+                        <div class="school-name">OUR LADY OF THE PILLAR COLLEGE - CAUAYAN</div>
+                        <div class="header-info"><strong>Room ID:</strong> ${userData.room_id}</div>
+                        <div class="header-info"><strong>Server:</strong> ${userData.server}</div>
+                        <div class="header-info"><strong>Teacher:</strong> ${userData.name}</div>
+                    </div>
+                </div>
+                <div class="messages">
+                    ${modifiedMessages}
+                </div>
+            </body>
+            </html>
+        `;
+
+        // Write and print
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+        printWindow.onload = function() {
+            printWindow.print();
+            printWindow.onafterprint = function() {
+                printWindow.close();
+            };
+        };
     });
 
     // Speak button functionality
+    let recognition = null;
+    let tempMessageElement = null;
+
     document.getElementById('speakBtn').addEventListener('click', function() {
-        this.classList.toggle('active');
-        // Add speak functionality
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (!userData) return;
+
+        // Check if speech recognition is supported
+        if (!('webkitSpeechRecognition' in window)) {
+            alert('Speech recognition is not supported in your browser');
+            return;
+        }
+
+        const speakBtn = this;
+        const teacherChatbox = document.getElementById('teacherChatbox');
+
+        // If recognition is already active, stop it
+        if (recognition) {
+            recognition.stop();
+            recognition = null;
+            speakBtn.classList.remove('active');
+            speakBtn.innerHTML = '<i class="mic-icon"></i>Speak';
+            
+            // Send final message if there's content
+            if (tempMessageElement && tempMessageElement.textContent.trim()) {
+                const finalMessage = tempMessageElement.textContent.replace(`${userData.name}: `, '');
+                sendVoiceMessage(finalMessage);
+            }
+            tempMessageElement = null;
+            return;
+        }
+
+        // Create new recognition instance
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        // Create temporary message element
+        tempMessageElement = document.createElement('div');
+        tempMessageElement.className = 'message teacher-message temp-message';
+        tempMessageElement.textContent = `${userData.name}: `;
+        teacherChatbox.appendChild(tempMessageElement);
+        teacherChatbox.scrollTop = teacherChatbox.scrollHeight;
+
+        // Start recording
+        recognition.start();
+        speakBtn.classList.add('active');
+        speakBtn.innerHTML = '<i class="mic-icon"></i>Listening...';
+
+        recognition.onresult = function(event) {
+            const transcript = Array.from(event.results)
+                .map(result => result[0].transcript)
+                .join('');
+            
+            tempMessageElement.textContent = `${userData.name}: ${transcript}`;
+            teacherChatbox.scrollTop = teacherChatbox.scrollHeight;
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+            stopRecording();
+        };
+
+        recognition.onend = function() {
+            stopRecording();
+        };
+
+        function stopRecording() {
+            recognition = null;
+            speakBtn.classList.remove('active');
+            speakBtn.innerHTML = '<i class="mic-icon"></i>Speak';
+            tempMessageElement = null;
+        }
+
+        function sendVoiceMessage(message) {
+            if (!message.trim()) return;
+            
+            fetch('/send-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    roomId: userData.room_id,
+                    server: userData.server,
+                    password: userData.password,
+                    message: message,
+                    name: userData.name,
+                    position: userData.position,
+                    userId: userData.user_id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Error sending voice message');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
     });
 
     // Update room users initially and every 5 seconds
     updateRoomUsers();
     setInterval(updateRoomUsers, 5000);
+
+    // Restore expanded state on page load
+    const expandedSections = JSON.parse(localStorage.getItem('expandedSections') || '{}');
+    Object.entries(expandedSections).forEach(([sectionId, isExpanded]) => {
+        if (isExpanded) {
+            const content = document.getElementById(sectionId);
+            const header = content.previousElementSibling;
+            content.classList.add('expanded');
+            header.classList.add('expanded');
+        }
+    });
 });
 
 function updateRoomUsers() {
@@ -321,3 +662,17 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+function toggleSection(sectionId) {
+    const content = document.getElementById(sectionId);
+    const header = content.previousElementSibling;
+    
+    // Toggle expanded class
+    content.classList.toggle('expanded');
+    header.classList.toggle('expanded');
+    
+    // Store state in localStorage
+    const expandedSections = JSON.parse(localStorage.getItem('expandedSections') || '{}');
+    expandedSections[sectionId] = content.classList.contains('expanded');
+    localStorage.setItem('expandedSections', JSON.stringify(expandedSections));
+}

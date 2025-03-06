@@ -44,36 +44,46 @@
 
             <div class="room-details-panel">
                 <div class="details-section">
-                    <h3>User Details</h3>
-                    <div class="detail-item">
-                        <label>Name:</label>
-                        <span id="teacherName">---</span>
+                    <div class="section-header" onclick="toggleSection('userDetails')">
+                        <h3>User Details</h3>
+                        <span class="toggle-icon">▼</span>
                     </div>
-                    <div class="detail-item">
-                        <label>User ID:</label>
-                        <span id="userId">---</span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Position:</label>
-                        <span id="userPosition">---</span>
+                    <div class="section-content" id="userDetails">
+                        <div class="detail-item">
+                            <label>Name:</label>
+                            <span id="teacherName">---</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>User ID:</label>
+                            <span id="userId">---</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Position:</label>
+                            <span id="userPosition">---</span>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="details-section">
-                    <h3>Room Details</h3>
-                    <div class="detail-item">
-                        <label>Room ID:</label>
-                        <span id="roomId">---</span>
+                    <div class="section-header" onclick="toggleSection('roomDetails')">
+                        <h3>Room Details</h3>
+                        <span class="toggle-icon">▼</span>
                     </div>
-                    <div class="detail-item">
-                        <label>Server:</label>
-                        <span id="serverName">---</span>
-                    </div>
-                    <div class="detail-item">
-                        <label>Password:</label>
-                        <div class="password-display">
-                            <span id="passwordValue" class="password-hidden">••••••</span>
-                            <button id="togglePasswordDisplay" class="toggle-btn">👁️</button>
+                    <div class="section-content" id="roomDetails">
+                        <div class="detail-item">
+                            <label>Room ID:</label>
+                            <span id="roomId">---</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Server:</label>
+                            <span id="serverName">---</span>
+                        </div>
+                        <div class="detail-item">
+                            <label>Password:</label>
+                            <div class="password-display">
+                                <span id="passwordValue" class="password-hidden">••••••</span>
+                                <button id="togglePasswordDisplay" class="toggle-btn">👁️</button>
+                            </div>
                         </div>
                     </div>
                 </div>
