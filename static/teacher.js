@@ -69,17 +69,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') sendMessage();
     });
 
-    let isMessageSending = false; // Add this flag at the top level
+    let canSendMessage = true; // Add this flag at the top level
 
     function sendMessage() {
         const message = messageInput.value.trim();
         const userData = JSON.parse(localStorage.getItem('userData'));
         
-        if (message && userData && !isMessageSending) {
-            isMessageSending = true; // Set flag to prevent multiple sends
+        if (message && userData && canSendMessage) {
+            // Disable sending for 1 second
+            canSendMessage = false;
             const sendButton = document.getElementById('sendButton');
-            sendButton.disabled = true; // Disable button
-            
+            sendButton.disabled = true;
+            sendButton.style.opacity = '0.5';
+
             fetch('/send-message', {
                 method: 'POST',
                 headers: {
@@ -111,11 +113,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error sending message:', error);
             })
             .finally(() => {
-                // Re-enable sending after a short delay
+                // Re-enable sending after 1 second
                 setTimeout(() => {
-                    isMessageSending = false;
+                    canSendMessage = true;
                     sendButton.disabled = false;
-                }, 500); // 500ms cooldown
+                    sendButton.style.opacity = '1';
+                }, 1000); // 1 second cooldown
             });
         }
     }
