@@ -5,19 +5,19 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #000074; /* Navy blue */
+    background-color: #192176;
     font-family: Arial, sans-serif;
 }
 
 .login-container {
-    background-color: #0000b4; /* Darker navy blue */
+    background-color: #283593;
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3),
-                0 0 0 3px #FFD700; /* Added solid gold border */
+                0 0 0 3px #FFD700;
     width: 100%;
     max-width: 400px;
-    border: 2px solid #FFD700; /* Thicker, more visible gold border */
+    border: 1px solid #FFD700;
 }
 
 .input-group {

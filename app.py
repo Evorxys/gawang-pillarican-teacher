@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, jsonify, session
 from database import (create_server_table, add_user_to_server, 
                      delete_room_users, get_student_messages,
-                     add_message_to_server, get_unique_room_count)  # Add this import
+                     add_message_to_server, get_unique_room_count,
+                     get_room_user_count, get_teacher_messages)  # Add this import
 import uuid  # Add this import at the top
 
 app = Flask(__name__, 
@@ -199,6 +200,68 @@ def get_server_counts():
         return jsonify({'success': True, 'counts': counts})
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/get-room-users', methods=['POST'])
+def get_room_users():
+    try:
+        data = request.get_json()
+        room_id = data.get('roomId')
+        server = data.get('server')
+        password = data.get('password')
+        
+        if not all([room_id, server, password]):
+            return jsonify({
+                'success': False,
+                'message': 'Missing required data'
+            })
+            
+        # Extract server number from "Server X" format
+        server_num = server.split()[-1]
+        
+        # Get user count and list
+        room_data = get_room_user_count(server_num, room_id, password)
+        
+        return jsonify({
+            'success': True,
+            'count': room_data['count'],
+            'users': room_data['users']
+        })
+            
+    except Exception as e:
+        print(f"Error getting room users: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'Error getting room users: {str(e)}'
+        })
+
+@app.route('/get-teacher-messages', methods=['POST'])
+def get_teacher_messages_route():
+    try:
+        data = request.get_json()
+        room_id = data.get('roomId')
+        server = data.get('server')
+        password = data.get('password')
+        
+        if not all([room_id, server, password]):
+            return jsonify({
+                'success': False,
+                'message': 'Missing required data'
+            })
+            
+        server_num = server.split()[-1] if isinstance(server, str) else server
+        messages = get_teacher_messages(server_num, room_id, password)
+        
+        return jsonify({
+            'success': True,
+            'messages': messages
+        })
+            
+    except Exception as e:
+        print(f"Error fetching teacher messages: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': f'Error fetching messages: {str(e)}'
+        })
 
 @app.route('/')
 def index():

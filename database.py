@@ -213,3 +213,69 @@ def get_unique_room_count(server_num):
     finally:
         cur.close()
         conn.close()
+
+def get_room_user_count(server_num, room_id, password):
+    table_name = f'server{server_num}'
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        # Modified query to get distinct combinations of uid and name
+        cur.execute(sql.SQL("""
+            SELECT COUNT(DISTINCT uid), array_agg(DISTINCT name) 
+            FROM (
+                SELECT DISTINCT uid, name
+                FROM {}
+                WHERE rid = %s AND pass = %s
+            ) as unique_users
+        """).format(sql.Identifier(table_name)),
+        (room_id, password))
+        
+        result = cur.fetchone()
+        count = result[0] if result else 0
+        names = result[1] if result and result[1] else []
+        
+        # Remove any None values and duplicates from names
+        names = list(dict.fromkeys(filter(None, names)))
+        
+        return {
+            'count': count,
+            'users': names
+        }
+        
+    except Exception as e:
+        print(f"Error counting users in room: {str(e)}")
+        return {'count': 0, 'users': []}
+    finally:
+        cur.close()
+        conn.close()
+
+def get_teacher_messages(server, room_id, password):
+    table_name = f'server{server}'
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        print(f"Fetching teacher messages from {table_name}")
+        
+        cur.execute(sql.SQL("""
+            SELECT name, message 
+            FROM {} 
+            WHERE rid = %s AND pass = %s AND position = 'teacher'
+            ORDER BY ctid ASC
+        """).format(sql.Identifier(table_name)),
+        (room_id, password))
+        
+        messages = cur.fetchall()
+        
+        return [{
+            'name': msg[0],
+            'message': msg[1]
+        } for msg in messages]
+        
+    except Exception as e:
+        print(f"Database error in get_teacher_messages: {str(e)}")
+        return []
+    finally:
+        cur.close()
+        conn.close()

@@ -1,16 +1,17 @@
 body {
     margin: 0;
     padding: 20px;
-    min-height: 100vh;
+    height: 100vh;
     background-color: #f0f2f5;
     font-family: Arial, sans-serif;
+    box-sizing: border-box;
 }
 
 .parent {
     display: grid;
-    grid-template-columns: 65% 35%; /* Changed from repeat(2, 1fr) to 65% 35% */
+    grid-template-columns: 65% 35%;
     gap: 20px;
-    height: calc(100vh - 40px);
+    height: 100%; /* Changed to 100% to fill available space */
     box-sizing: border-box;
 }
 
@@ -38,8 +39,12 @@ body {
 
 .chatbox {
     flex-grow: 1;
-    overflow-y: auto;
+    overflow-y: scroll; /* Changed from auto to scroll */
     padding: 15px;
+    height: calc(100% - 60px); /* Adjust for header and input container */
+    min-height: 0; /* Add this to allow content to scroll */
+    display: flex;
+    flex-direction: column;
 }
 
 .message-input-container {
@@ -98,7 +103,9 @@ body {
     border-radius: 8px;
     padding: 15px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    flex-grow: 1;
+    height: 550px; /* Set fixed height */
+    overflow-y: auto; /* Make scrollable */
+    margin-bottom: 10px;
 }
 
 .user-list {
@@ -106,7 +113,7 @@ body {
     padding: 10px;
     background: #f8f9fa;
     border-radius: 4px;
-    max-height: 150px;
+    max-height: 100px; /* Reduced height */
     overflow-y: auto;
 }
 
@@ -158,6 +165,9 @@ button:hover {
     flex: 1;
     gap: 10px;
     padding: 10px;
+    height: calc(100vh - 300px); /* Reduced height */
+    overflow: hidden; /* Prevent outer scroll */
+    min-height: 0; /* Add this to allow flex children to shrink */
 }
 
 .teacher-chat, .student-chat {
@@ -167,6 +177,8 @@ button:hover {
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    height: 650px; /* Set fixed height */
+    min-height: 0; /* Add this to allow flex children to shrink */
 }
 
 .teacher-chat h3, .student-chat h3 {
@@ -185,9 +197,14 @@ button:hover {
 
 .chatbox {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: scroll; /* Enable vertical scrolling */
     padding: 10px;
     background: #fff;
+    height: calc(100% - 40px); /* Account for header */
+    scroll-behavior: smooth; /* Smooth scrolling */
+    min-height: 0; /* Add this to allow content to scroll */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Message styles */
@@ -197,6 +214,7 @@ button:hover {
     border-radius: 15px;
     max-width: 80%;
     word-wrap: break-word;
+    flex-shrink: 0; /* Prevent messages from shrinking */
 }
 
 .teacher-message {

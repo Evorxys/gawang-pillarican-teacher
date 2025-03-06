@@ -69,11 +69,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') sendMessage();
     });
 
+    let isMessageSending = false; // Add this flag at the top level
+
     function sendMessage() {
         const message = messageInput.value.trim();
         const userData = JSON.parse(localStorage.getItem('userData'));
         
-        if (message && userData) {
+        if (message && userData && !isMessageSending) {
+            isMessageSending = true; // Set flag to prevent multiple sends
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = true; // Disable button
+            
             fetch('/send-message', {
                 method: 'POST',
                 headers: {
@@ -92,19 +98,24 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Add message to teacher's chatbox
                     const messageElement = document.createElement('div');
                     messageElement.className = 'message teacher-message';
                     messageElement.textContent = `${userData.name}: ${message}`;
-                    teacherChatbox.appendChild(messageElement); // Add at the bottom
+                    teacherChatbox.appendChild(messageElement);
                     
-                    // Clear input and scroll to bottom
                     messageInput.value = '';
                     teacherChatbox.scrollTop = teacherChatbox.scrollHeight;
                 }
             })
             .catch(error => {
                 console.error('Error sending message:', error);
+            })
+            .finally(() => {
+                // Re-enable sending after a short delay
+                setTimeout(() => {
+                    isMessageSending = false;
+                    sendButton.disabled = false;
+                }, 500); // 500ms cooldown
             });
         }
     }
@@ -166,6 +177,48 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function loadTeacherMessages() {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (!userData) return;
+
+        fetch('/get-teacher-messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                roomId: userData.room_id,
+                server: userData.server,
+                password: userData.password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && Array.isArray(data.messages)) {
+                const teacherChatbox = document.getElementById('teacherChatbox');
+                if (!teacherChatbox) return;
+
+                teacherChatbox.innerHTML = '';
+                
+                data.messages.forEach(msg => {
+                    const messageElement = document.createElement('div');
+                    messageElement.className = 'message teacher-message';
+                    messageElement.textContent = `${msg.name}: ${msg.message}`;
+                    teacherChatbox.appendChild(messageElement);
+                });
+                
+                teacherChatbox.scrollTop = teacherChatbox.scrollHeight;
+            }
+        })
+        .catch(error => console.error('Error loading teacher messages:', error));
+    }
+
+    // Load both types of messages and set up refresh intervals
+    loadTeacherMessages();
+    loadStudentMessages();
+    setInterval(loadTeacherMessages, 5000);
+    setInterval(loadStudentMessages, 5000);
+
     // Load messages initially
     loadStudentMessages();
 
@@ -217,7 +270,41 @@ document.addEventListener('DOMContentLoaded', function() {
         this.classList.toggle('active');
         // Add speak functionality
     });
+
+    // Update room users initially and every 5 seconds
+    updateRoomUsers();
+    setInterval(updateRoomUsers, 5000);
 });
+
+function updateRoomUsers() {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData) return;
+
+    fetch('/get-room-users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            roomId: userData.room_id,
+            server: userData.server,
+            password: userData.password
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('userCount').textContent = data.count;
+            
+            // Update user list
+            const userList = document.getElementById('userList');
+            userList.innerHTML = data.users
+                .map(user => `<div class="user-item">${user}</div>`)
+                .join('');
+        }
+    })
+    .catch(error => console.error('Error updating room users:', error));
+}
 
 // Add styles for user items
 const style = document.createElement('style');
