@@ -216,17 +216,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error loading teacher messages:', error));
     }
 
-    // Load both types of messages and set up refresh intervals
+    // Load both types of messages and set up refresh intervals with longer delays
     loadTeacherMessages();
     loadStudentMessages();
-    setInterval(loadTeacherMessages, 5000);
-    setInterval(loadStudentMessages, 5000);
 
-    // Load messages initially
-    loadStudentMessages();
+    // Change intervals to 3 seconds for teacher messages and 2 seconds for student messages
+    setInterval(loadTeacherMessages, 3000);
+    setInterval(loadStudentMessages, 2000);
 
-    // Refresh messages every 5 seconds
-    setInterval(loadStudentMessages, 5000);
+    // Update room users with a 4-second delay
+    setInterval(updateRoomUsers, 4000);
 
     // Control buttons functionality
     document.getElementById('exitBtn').addEventListener('click', async () => {
