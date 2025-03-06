@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session
 from database import (create_server_table, add_user_to_server, 
                      delete_room_users, get_student_messages,
-                     add_message_to_server)
+                     add_message_to_server, get_unique_room_count)  # Add this import
 import uuid  # Add this import at the top
 
 app = Flask(__name__, 
@@ -187,6 +187,18 @@ def send_message():
             'success': False,
             'message': f'Error sending message: {str(e)}'
         })
+
+@app.route('/get-server-counts')
+def get_server_counts():
+    try:
+        counts = {
+            'server1': get_unique_room_count(1),
+            'server2': get_unique_room_count(2),
+            'server3': get_unique_room_count(3)
+        }
+        return jsonify({'success': True, 'counts': counts})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/')
 def index():

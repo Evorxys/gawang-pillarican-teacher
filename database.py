@@ -191,3 +191,25 @@ def add_message_to_server(server_num, room_id, password, message, position, uid,
     finally:
         cur.close()
         conn.close()
+
+def get_unique_room_count(server_num):
+    table_name = f'server{server_num}'
+    conn = get_db_connection()
+    cur = conn.cursor()
+    
+    try:
+        cur.execute(sql.SQL("""
+            SELECT COUNT(DISTINCT rid) 
+            FROM {} 
+            WHERE position = 'teacher'
+        """).format(sql.Identifier(table_name)))
+        
+        count = cur.fetchone()[0]
+        return count or 0
+        
+    except Exception as e:
+        print(f"Error counting rooms in {table_name}: {str(e)}")
+        return 0
+    finally:
+        cur.close()
+        conn.close()
